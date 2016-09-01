@@ -980,10 +980,20 @@ public class JPQLQuery extends AbstractJPQLQuery
         }
 
         RDBMSStoreManager storeMgr = (RDBMSStoreManager)getStoreManager();
-        DatastoreAdapter dba = storeMgr.getDatastoreAdapter();
-        boolean using_limit_where_clause = (dba.getRangeByLimitEndOfStatementClause(fromInclNo, toExclNo).length() > 0);
-        boolean using_rownum = (dba.getRangeByRowNumberColumn().length() > 0) || (dba.getRangeByRowNumberColumn2().length() > 0);
-
+        DatastoreAdapter dba = storeMgr.getDatastoreAdapter(); 
+        boolean using_limit_where_clause;
+        boolean using_rownum;
+        // For MSSQL Server, we need order by clause for the correct range syntax
+        if (dba.getClass().getName().equalsIgnoreCase("org.datanucleus.store.rdbms.adapter.MSSQLServerAdapter")) 
+        {
+          boolean hasOrdering = ((ordering != null) && (!ordering.isEmpty())) ? true : false;
+          using_limit_where_clause = (dba.getRangeByLimitEndOfStatementClause(fromInclNo, toExclNo, hasOrdering).length() > 0);
+        }
+        else 
+        {
+          using_limit_where_clause = (dba.getRangeByLimitEndOfStatementClause(fromInclNo, toExclNo).length() > 0);
+        }
+        using_rownum = (dba.getRangeByRowNumberColumn().length() > 0) || (dba.getRangeByRowNumberColumn2().length() > 0);
         return using_limit_where_clause || using_rownum;
     }
 

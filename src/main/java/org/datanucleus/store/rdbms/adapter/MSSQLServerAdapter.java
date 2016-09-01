@@ -527,6 +527,11 @@ public class MSSQLServerAdapter extends BaseDatastoreAdapter
      */
     public String getRangeByLimitEndOfStatementClause(long offset, long count)
     {
+      return getRangeByLimitEndOfStatementClause(offset, count, false);
+    }
+    
+    public String getRangeByLimitEndOfStatementClause(long offset, long count, boolean hasOrdering)
+    {
         if (datastoreMajorVersion < 11) // Prior to SQLServer 2012
         {
             return super.getRangeByLimitEndOfStatementClause(offset, count);
@@ -535,12 +540,14 @@ public class MSSQLServerAdapter extends BaseDatastoreAdapter
         {
             return "";
         }
-
         StringBuilder str = new StringBuilder();
-        str.append("OFFSET " + offset + (offset == 1 ? " ROW " : " ROWS "));
-        if (count > 0)
+        if (hasOrdering)
         {
-            str.append("FETCH NEXT " + (count > 1 ? (count + " ROWS ONLY ") : "ROW ONLY "));
+          str.append("OFFSET " + offset + (offset == 1 ? " ROW " : " ROWS "));
+          if (count > 0)
+          {
+              str.append("FETCH NEXT " + (count > 1 ? (count + " ROWS ONLY ") : count + " ROW ONLY "));
+          } 
         }
         return str.toString();
     }

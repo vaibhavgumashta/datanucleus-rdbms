@@ -1537,6 +1537,20 @@ public class BaseDatastoreAdapter implements DatastoreAdapter
     {
         return "";
     }
+    
+    /**
+     * Method to return the SQL to append to the end of the SELECT statement to handle
+     * restriction of ranges using the LIMIT keyword. Defaults to an empty string (not supported).
+     * SELECT param ... WHERE {LIMIT}
+     * @param offset The offset to return from
+     * @param count The number of items to return
+     * @param hasOrdering If the query has order by clause
+     * @return The SQL to append to allow for ranges using LIMIT.
+     */
+    public String getRangeByLimitEndOfStatementClause(long offset, long count, boolean hasOrdering)
+    {
+        return "";
+    }
 
     /**
      * Method to return the column name to use when handling ranges via

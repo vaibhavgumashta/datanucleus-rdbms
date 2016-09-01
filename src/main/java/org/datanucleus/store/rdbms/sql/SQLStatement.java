@@ -1782,7 +1782,17 @@ public class SQLStatement
         if (rangeOffset > -1 || rangeCount > -1)
         {
             // Add a LIMIT clause to end of statement if supported by the adapter
-            String limitClause = dba.getRangeByLimitEndOfStatementClause(rangeOffset, rangeCount);
+            String limitClause;
+            // For MSSQL Server, we need order by clause for the correct range syntax
+            if (dba.getClass().getName().equalsIgnoreCase("org.datanucleus.store.rdbms.adapter.MSSQLServerAdapter")) 
+            {
+              boolean hasOrderBy = (orderStmt != null);
+              limitClause = dba.getRangeByLimitEndOfStatementClause(rangeOffset, rangeCount, hasOrderBy);
+            }
+            else 
+            {
+              limitClause = dba.getRangeByLimitEndOfStatementClause(rangeOffset, rangeCount);
+            }
             if (limitClause.length() > 0)
             {
                 sql.append(" ").append(limitClause);
